@@ -1,0 +1,49 @@
+% !TEX root = root.tex
+\usepackage{calc}
+
+
+\newcommand*{\rom}[1]{\MakeUppercase{\romannumeral #1}}
+%\setlength{\textheight}{800pt}
+
+\definesongtitletemplate{custom}{
+		\ifsongproperty{artist}{
+			\section*{\musejazz\songproperty{artist} - \songproperty{title}}
+			
+		}{\section*{\musejazz\songproperty{title}}}
+  
+	\begingroup
+	% if album or year provided: always add table below
+	\ifanysongproperty{album, year}{
+		\begin{tabularx}{\textwidth}{l X r}
+			\musejazz
+			\ifsongproperty{album}{Album: \songproperty{album}}{} & 
+			\ifsongproperty{capo}{
+				
+				\ifnum \songproperty{capo} > 0
+				\musejazz Capo: \rom{\songproperty{capo}}
+				\fi
+			}{} & \ifsongproperty{year}{\musejazz\songproperty{year}}{} \\
+			
+		\end{tabularx}
+	}{
+		% else if capo and capo > 0 also show table
+		\ifsongproperty{capo}{
+		\ifnum \songproperty{capo} > 0
+			\begin{tabularx}{\textwidth}{l X r}
+				& \musejazz Capo: \rom{\songproperty{capo}}	 & \\
+				
+			\end{tabularx}
+		\fi
+		}{
+			%else don't show table
+		}
+	}
+	\endgroup
+
+}
+
+
+\definesongproperty{artist}
+\definesongproperty{album}
+\definesongproperty{year}
+

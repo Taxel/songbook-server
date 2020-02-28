@@ -1,0 +1,87 @@
+\newcommand*{\refAnything}[1]{\textsf{\textbf{[#1]}}}
+
+%\newcommand*{\refAnything}[1]{}
+\newcommand*{\refVerse}[1]{\refAnything{Verse #1}}
+\newcommand*{\refChorus}[1][]{
+	%normally it does not matter if there's one or zero arguments
+	\ifthenelse{\equal{#1}{}}{}{}
+	\refAnything{Refrain}
+}
+
+\newcommand{\guitarAnnotation}[1]{
+	\ifdefined\wordbk
+
+	\else
+	\annotation{#1}
+	\fi	
+}
+\newcommand{\annotation}[1]{
+	\textit{(#1)}
+}
+
+\newcommand{\CBPageBrk}{		
+}
+
+\newcommand*{\refIntro}{\refAnything{Intro}}
+\newcommand*{\mal}{$\times$}
+\newcommand*{\speaker}[1]{\textit{\textsf{[#1]}}}
+
+\newenvironment{tablature}{\ttfamily}{\par}
+
+\newenvironment{chordsDiagrams}{\begin{tabular}{r | >{\bfseries}c >{\bfseries}c >{\bfseries}c >{\bfseries}c >{\bfseries}c >{\bfseries}c |}}{\end{tabular}}
+\newversetype{prechorus}[name=Pre]
+
+
+%lower line spacing in songs
+\renewcommand{\arraystretch}{0.6}
+
+\newcommand{\zero}{0}
+\newcommand{\one}{1}
+\newcommand{\repeatChorus}{\one}
+
+\newcommand*{\singleSide}[1][]{
+	%check if parameter is empty
+	\ifthenelse{\equal{#1}{}}{\renewcommand{\repeatChorus}{1}}{\renewcommand{\repeatChorus}{0}}
+	\clearpage
+	%\WBPageBrk
+
+}
+
+\newcommand*{\doubleSide}{
+	\renewcommand{\repeatChorus}{1}
+	\cleartoleftpage
+}
+
+%% redefine refChorus to expand choruses
+\ifdefined\expandChorus
+	\usepackage{environ}
+	\let\origChorus\chorus
+	\let\origendChorus\endchorus
+	\RenewEnviron{chorus}%
+	{\global\let\lastChorus\BODY
+		\origChorus\lastChorus\origendChorus
+	}
+	\renewcommand\refChorus[1][]{
+		\ifthenelse{
+			\equal{\repeatChorus}{0} \OR \equal{#1}{noRepeat}
+			}{
+				\refAnything{Refrain}
+			}{
+				\origChorus\lastChorus\origendChorus
+			}
+	}
+\fi
+
+%% shut off intro and outro in wordbook mode
+\ifdefined\wordbk
+	\usepackage{environ}
+	\RenewEnviron{intro}%
+	{
+	}
+	\RenewEnviron{outro}%
+	{
+	}	
+\fi
+
+
+

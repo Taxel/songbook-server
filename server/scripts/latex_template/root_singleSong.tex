@@ -1,0 +1,46 @@
+
+\documentclass[a4paper, 8pt]{book}
+
+\usepackage[top=1mm, bottom=1mm, left=1mm, right=1mm, paperwidth=5.38in, paperheight=8.61in]{geometry} 
+%\usepackage[utf8]{inputenc}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{leadsheets} %songbook functionality, chords ...
+\usepackage[noautomatic]{imakeidx} %allows for multiple indices
+\usepackage[ngerman]{babel}
+\usepackage{lmodern}
+
+\usepackage{graphicx}
+\graphicspath{{../public/files/}} %Where the figures folder is located
+
+\usepackage{ifthen}
+%\usepackage{showframe}
+
+
+
+ 
+%\errorcontextlines 10000
+\input{latex_template/commands.tex}
+\input{latex_template/songtitleTemplateSingleSong.tex} 
+%\renewcommand{\ttdefault}{pcr}
+%\renewcommand\familydefault{\sfdefault}
+%\usepackage{enumitem}
+%\setlist{leftmargin=9.0mm}
+%\linespread{0.4}
+
+\input{latex_template/musejazzCommands.tex}
+
+\usepackage{fancyhdr}
+
+\pagestyle{plain}
+\fancypagestyle{plain}{%
+\fancyhf{} % clear all header and footer fields
+\fancyfoot[R]{\raisebox{20mm}{\textbf{\thepage}}} % except the center
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}}
+
+\begin{document}
+
+\input{../public/files/tex/\filename.tex}
+
+\end{document}

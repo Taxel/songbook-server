@@ -1,0 +1,14 @@
+**/node_modules/
+old_files/
+.vscode/
+server/public/files/chopro/
+server/public/files/pdf/
+server/public/files/chopro_in_progress/
+server/public/files/tabs/
+server/public/files/tex/
+server/public/files/mobilesheets*
+server/.env
+server/service-key.json
+server/scripts/out/
+server/scripts/old/
+**/__pycache__

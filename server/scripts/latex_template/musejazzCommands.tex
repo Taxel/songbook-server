@@ -1,0 +1,17 @@
+\useleadsheetslibrary{musejazz} 
+\newfontfamily \musejazz {MuseJazzText}
+\setleadsheets{
+    title-template=custom,
+    verses-label-format=\musejazz, 
+    verse/numbered=true, 
+    verse/label-format=\large\bfseries\musejazz, 
+    %song/obey-lines=true,
+    chords/format={\bfseries}}
+
+\DeclareTranslation{German}{leadsheets/chorus}{Ref}
+\DeclareTranslation{German}{leadsheets/intro}{Int}
+\DeclareTranslation{German}{leadsheets/outro}{Out}
+\DeclareTranslation{German}{leadsheets/bridge}{Br}
+\DeclareTranslation{German}{leadsheets/interlude}{Zw}
+
+\renewcommand*{\refAnything}[1]{\textbf{\musejazz{[-\hspace{-0.2em}-\hspace{-0.2em}> #1]}}}
