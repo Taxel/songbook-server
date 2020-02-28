@@ -5,6 +5,8 @@ _Note: This project is not done at all in its current form. I will also probably
 This is my personal project which is meant as a complete web application that can download Ultimate-Guitar.com tabs, convert them to the chopro format, convert chopro files to .tex files which can then be compiled to a PDF that, at least in my opinion, looks better than a normal chopro file and is optimized for readability on my 10" tablet.
 It will also be able to connect to a MobileSheetsPro backup stored in Google Drive and upload new files there directly, as well as provide a nice frontend where a user can edit chopro files and library information.
 
+You can take a look at a pdf that was generated from a chopro file under [`server/public/files/pdf/Rise_Against-Swing_Life_Away.pdf`](https://github.com/Taxel/songbook-server/blob/master/server/public/files/pdf/Rise_Against-Swing_Life_Away.pdf) and one that was written in .tex manually under [`server/public/files/pdf/system_of_a_down-lonely_day.pdf`](https://github.com/Taxel/songbook-server/blob/master/server/public/files/pdf/system_of_a_down-lonely_day.pdf)
+
 ## Features
 
 ### Backend
