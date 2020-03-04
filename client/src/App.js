@@ -1,18 +1,42 @@
 import React from "react";
-import logo from "./logo.svg";
-import TestButton from "./components/TestButton";
+
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import Header from "./components/Header";
+import NotImplemented from "./pages/NotImplemented";
+import About from "./pages/About";
 import "./App.css";
+import Local from "./pages/Local";
+import { Container } from "react-bootstrap";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+// load icon library
+import "./icons";
+import Database from "./pages/Database";
 
 function App() {
+    toast.configure();
     return (
-        <div className="App">
-            <h1>You made it! The client is running!</h1>
-            <p>
-                As you can see there is not a lot here yet. The only usable component of this is the server part, which
-                does all its magic without any user prompt at the moment.
-            </p>
-            <TestButton />
-        </div>
+        <Router>
+            <div className="App">
+                <Header />
+                <Container className="content" fluid>
+                    <Switch>
+                        <Route path="/gdrive">
+                            <Database />
+                        </Route>
+                        <Route path="/local">
+                            <Local />
+                        </Route>
+                        <Route path="/about">
+                            <About />
+                        </Route>
+                        <Route path="/">
+                            <NotImplemented />
+                        </Route>
+                    </Switch>
+                </Container>
+            </div>
+        </Router>
     );
 }
 

@@ -1,5 +1,6 @@
 **/node_modules/
 old_files/
+Mobilesheets_dbs_test/
 .vscode/
 server/public/files/chopro/
 server/public/files/pdf/
@@ -12,3 +13,4 @@ server/service-key.json
 server/scripts/out/
 server/scripts/old/
 **/__pycache__
+server/public/files/Are You Lonesome Tonight_.jpg

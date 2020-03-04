@@ -25,8 +25,8 @@ You can take a look at a pdf that was generated from a chopro file under [`serve
 
 ### Frontend
 
--   [ ] edit chopro files (split screen, show resulting pdf simultaneously)
--   [ ] view all the songs
+-   [x] edit chopro files with custom-built syntax highlighting for chopro and tex!
+-   [x] view all the songs
 -   [ ] edit song metadata
 -   [ ] edit artists
 -   [ ] add new song from ultimate-guitar

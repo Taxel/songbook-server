@@ -1,0 +1,153 @@
+
+{
+  "header": {
+    "reportVersion": 2,
+    "event": "Allocation failed - JavaScript heap out of memory",
+    "trigger": "FatalError",
+    "filename": "report.20200304.220229.940.0.001.json",
+    "dumpEventTime": "2020-03-04T22:02:29Z",
+    "dumpEventTimeStamp": "1583355749321",
+    "processId": 940,
+    "threadId": null,
+    "cwd": "E:\\Users\\tmp\\Documents\\Programming\\Songbook\\server",
+    "commandLine": [
+      "C:\\Program Files\\nodejs\\versions\\v13.9.0\\node.exe",
+      "./bin/www"
+    ],
+    "nodejsVersion": "v13.9.0",
+    "wordSize": 64,
+    "arch": "x64",
+    "platform": "win32",
+    "componentVersions": {
+      "node": "13.9.0",
+      "v8": "7.9.317.25-node.28",
+      "uv": "1.34.2",
+      "zlib": "1.2.11",
+      "brotli": "1.0.7",
+      "ares": "1.15.0",
+      "modules": "79",
+      "nghttp2": "1.40.0",
+      "napi": "5",
+      "llhttp": "2.0.4",
+      "openssl": "1.1.1d",
+      "cldr": "36.0",
+      "icu": "65.1",
+      "tz": "2019c",
+      "unicode": "12.1"
+    },
+    "release": {
+      "name": "node",
+      "headersUrl": "https://nodejs.org/download/release/v13.9.0/node-v13.9.0-headers.tar.gz",
+      "sourceUrl": "https://nodejs.org/download/release/v13.9.0/node-v13.9.0.tar.gz",
+      "libUrl": "https://nodejs.org/download/release/v13.9.0/win-x64/node.lib"
+    },
+    "osName": "Windows_NT",
+    "osRelease": "10.0.17134",
+    "osVersion": "Windows 10 Education",
+    "osMachine": "x86_64",
+    "cpus": [
+      {
+        "model": "Intel(R) Core(TM) i7-6700K CPU @ 4.00GHz",
+        "speed": 4008,
+        "user": 10917656,
+        "nice": 0,
+        "sys": 20406468,
+        "idle": 213391625,
+        "irq": 2667468
+      },
+      {
+        "model": "Intel(R) Core(TM) i7-6700K CPU @ 4.00GHz",
+        "speed": 4008,
+        "user": 9732093,
+        "nice": 0,
+        "sys": 12971265,
+        "idle": 222012234,
+        "irq": 164312
+      },
+      {
+        "model": "Intel(R) Core(TM) i7-6700K CPU @ 4.00GHz",
+        "speed": 4008,
+        "user": 11779671,
+        "nice": 0,
+        "sys": 18802656,
+        "idle": 214133265,
+        "irq": 72453
+      },
+      {
+        "model": "Intel(R) Core(TM) i7-6700K CPU @ 4.00GHz",
+        "speed": 4008,
+        "user": 10056156,
+        "nice": 0,
+        "sys": 4863593,
+        "idle": 229795843,
+        "irq": 46140
+      },
+      {
+        "model": "Intel(R) Core(TM) i7-6700K CPU @ 4.00GHz",
+        "speed": 4008,
+        "user": 11281875,
+        "nice": 0,
+        "sys": 18745093,
+        "idle": 214688609,
+        "irq": 64765
+      },
+      {
+        "model": "Intel(R) Core(TM) i7-6700K CPU @ 4.00GHz",
+        "speed": 4008,
+        "user": 8227500,
+        "nice": 0,
+        "sys": 5385656,
+        "idle": 231102437,
+        "irq": 45062
+      },
+      {
+        "model": "Intel(R) Core(TM) i7-6700K CPU @ 4.00GHz",
+        "speed": 4008,
+        "user": 12852968,
+        "nice": 0,
+        "sys": 17648703,
+        "idle": 214213921,
+        "irq": 65281
+      },
+      {
+        "model": "Intel(R) Core(TM) i7-6700K CPU @ 4.00GHz",
+        "speed": 4008,
+        "user": 8282812,
+        "nice": 0,
+        "sys": 6083734,
+        "idle": 230349031,
+        "irq": 45125
+      }
+    ],
+    "networkInterfaces": [
+      {
+        "name": "Ethernet-Motherboard",
+        "internal": false,
+        "mac": "1c:87:2c:60:74:6e",
+        "address": "fe80::a556:673b:a5b5:e2c7",
+        "netmask": "ffff:ffff:ffff:ffff::",
+        "family": "IPv6",
+        "scopeid": 16
+      },
+      {
+        "name": "Ethernet-Motherboard",
+        "internal": false,
+        "mac": "1c:87:2c:60:74:6e",
+        "address": "192.168.178.26",
+        "netmask": "255.255.255.0",
+        "family": "IPv4"
+      },
+      {
+        "name": "VirtualBox Host-Only Network",
+        "internal": false,
+        "mac": "0a:00:27:00:00:0f",
+        "address": "fe80::38d1:c9c7:86a7:1c66",
+        "netmask": "ffff:ffff:ffff:ffff::",
+        "family": "IPv6",
+        "scopeid": 15
+      },
+      {
+        "name": "VirtualBox Host-Only Network",
+        "internal": false,
+        "mac": "0a:00:27:00:00:0f",
+    

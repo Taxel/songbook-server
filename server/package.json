@@ -6,6 +6,7 @@
     "start": "nodemon ./bin/www"
   },
   "dependencies": {
+    "@godaddy/terminus": "^4.3.1",
     "chokidar": "^3.3.1",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
@@ -15,6 +16,7 @@
     "googleapis": "^39.2.0",
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
+    "murmurhash-native": "^3.4.1",
     "node-google-drive": "^1.1.2",
     "nodemon": "^2.0.2",
     "sqlite3": "^4.1.1"

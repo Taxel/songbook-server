@@ -30,12 +30,21 @@ def songPartSub(match):
     
     return g
 
+# matches a chopro chord
 ch = re.compile("\[(\S*?)\]")
+
+# matches a line that contains only (tex)chords or whitespaces:
+onlyChords = re.compile("^(?:\^{\S+}|\s|:?\|:?)+$")
+
+# matches spaces between chords if there are twi chords following each other directly:
+followingChords = re.compile("(\^{\S+})\s+(?=\^{\S+})")
 
 def convertChords(line):
     chords = []
     ret = ""
     global ch
+    global onlyChords
+    global followingChords
     for m in ch.finditer(line):
             i = m.start()
             chords.append((i, m.group(1)))
@@ -55,7 +64,11 @@ def convertChords(line):
         lastIndex = i
 
     ret = line[:lastIndex] + ret
-            
+
+    if onlyChords.match(ret):
+        ret = ret.replace('^', '_')
+    else:
+        ret = re.sub(followingChords, "\\1 \\\quad ", ret)
     return ret + '\n'
 
 tab_match_number = 0
@@ -116,6 +129,8 @@ def convert(s):
         song.append(convertChords(line))
 
     song = '\n'.join(song)
+    custom_nobreak = re.compile(r"\/\/[ ]*\n")
+    song = re.sub(custom_nobreak, "~ ", song)
     pre = """\\begin{song}{%
     title={""" + songname + """}, %Songtitel
 	artist={""" + artist + """}, %Interpret
