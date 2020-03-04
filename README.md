@@ -17,7 +17,7 @@ You can take a look at a pdf that was generated from a chopro file under [`serve
 -   [x] compile .tex files to .pdf optimized for tablet
 -   [x] watch the directories to do all the conversions listed above automatically
 -   [x] download MobileSheetsPro database from Google Drive
--   [ ] edit database in Drive
+-   [x] edit database in Drive (partial)
 -   [ ] edit files in Drive
 -   [ ] add new songs to MobileSheetsPro database
 -   [ ] propagate changes in chopro or tex files to MSP database automatically
@@ -27,7 +27,9 @@ You can take a look at a pdf that was generated from a chopro file under [`serve
 
 -   [x] edit chopro files with custom-built syntax highlighting for chopro and tex!
 -   [x] view all the songs
--   [ ] edit song metadata
+-   [x] edit song title
+-   [x] delete songs (partial, songs are only deleted from database)
+-   [ ] edit more song metadata
 -   [ ] edit artists
 -   [ ] add new song from ultimate-guitar
 -   [ ] authentication?
