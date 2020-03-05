@@ -1,7 +1,5 @@
 # Aalex' Songbook Server
 
-_Note: This project is not done at all in its current form. I will also probably forget to list every change I make in here and might get bored and stop working on this._
-
 This is my personal project which is meant as a complete web application that can download Ultimate-Guitar.com tabs, convert them to the chopro format, convert chopro files to .tex files which can then be compiled to a PDF that, at least in my opinion, looks better than a normal chopro file and is optimized for readability on my 10" tablet.
 It will also be able to connect to a MobileSheetsPro backup stored in Google Drive and upload new files there directly, as well as provide a nice frontend where a user can edit chopro files and library information.
 
@@ -11,7 +9,7 @@ You can take a look at a pdf that was generated from a chopro file under [`serve
 
 ### Backend
 
--   [ ] download files as .chopro from ultimate-guitar.com
+-   [x] download files as .chopro from ultimate-guitar.com (can't handle tabs yet)
 -   [x] convert .chopro files to .tex files (not all chopro features supported)
 -   [x] convert some ascii tablatures to png (breaks sometimes)
 -   [x] compile .tex files to .pdf optimized for tablet
@@ -31,7 +29,7 @@ You can take a look at a pdf that was generated from a chopro file under [`serve
 -   [x] delete songs (partial, songs are only deleted from database)
 -   [ ] edit more song metadata
 -   [ ] edit artists
--   [ ] add new song from ultimate-guitar
+-   [x] add new song from ultimate-guitar
 -   [ ] authentication?
 -   [ ] song wish list, even for unauthenticated users?
 -   [ ] ...

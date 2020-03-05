@@ -12,8 +12,13 @@ const iconColors = {
 };
 
 const SingleStatus = props => {
-    const { in_progress, queued, last_run, text } = props;
-
+    const { in_progress, queued, last_run, text, start_date } = props;
+    let secondsToDisplay = -1;
+    if (in_progress) {
+        secondsToDisplay = Math.floor((Date.now() - start_date) / 1000);
+    } else if (last_run) {
+        secondsToDisplay = last_run.elapsedSeconds;
+    }
     let icon, tooltip;
     if (in_progress) {
         if (queued) {
@@ -57,7 +62,7 @@ const SingleStatus = props => {
                             color={iconColors[icon]}
                             style={{ width: "1em", margin: "0 0.2em" }}
                         />{" "}
-                        {last_run && `${last_run.elapsedSeconds} s`}
+                        {secondsToDisplay !== -1 && `${secondsToDisplay} s`}
                     </div>
                 </OverlayTrigger>
             </td>
@@ -92,21 +97,19 @@ const LocalFileStatus = props => {
         };
     }, []);
     return (
-        <Card>
-            <Card.Body>
-                <Card.Title>Build status</Card.Title>
-                {currentStatus ? (
-                    <Table size="sm">
-                        <tbody>
-                            <SingleStatus {...currentStatus.pdf} text="tex > pdf" />
-                            <SingleStatus {...currentStatus.tex} text="chopro > tex" />
-                        </tbody>
-                    </Table>
-                ) : (
-                    <Spinner animation="border" />
-                )}
-            </Card.Body>
-        </Card>
+        <Card.Body>
+            <Card.Title>Build status</Card.Title>
+            {currentStatus ? (
+                <Table size="sm">
+                    <tbody>
+                        <SingleStatus {...currentStatus.pdf} text="tex > pdf" />
+                        <SingleStatus {...currentStatus.tex} text="chopro > tex" />
+                    </tbody>
+                </Table>
+            ) : (
+                <Spinner animation="border" />
+            )}
+        </Card.Body>
     );
 };
 

@@ -12,6 +12,7 @@ import "react-toastify/dist/ReactToastify.css";
 // load icon library
 import "./icons";
 import Database from "./pages/Database";
+import Welcome from "./pages/Welcome";
 
 function App() {
     toast.configure();
@@ -31,7 +32,7 @@ function App() {
                             <About />
                         </Route>
                         <Route path="/">
-                            <NotImplemented />
+                            <Welcome />
                         </Route>
                     </Switch>
                 </Container>

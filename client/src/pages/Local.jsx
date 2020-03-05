@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Row, Col, Card, Jumbotron, ToggleButton, ButtonGroup } from "react-bootstrap";
+import { toast } from "react-toastify";
+import VisibilitySensor from "react-visibility-sensor";
 import LocalFileEdit from "../components/LocalFileEdit";
 import LocalFileBrowser from "../components/LocalFileBrowser";
 import LocalFileStatus from "../components/LocalFilesStatus";
@@ -7,6 +9,8 @@ import LocalFileStatus from "../components/LocalFilesStatus";
 const Local = props => {
     const [activeFile, setActiveFile] = useState(null);
     const [showBrowser, setShowBrowser] = useState(true);
+    const [toastID, setToastID] = useState(null);
+    const [isFileStatusVisible, setIsFileStatusVisible] = useState(true);
     const [forcePDFReload, setForcePDFReload] = useState(0);
     const [status, setStatus] = useState(null);
 
@@ -22,6 +26,24 @@ const Local = props => {
             successfulFiles = [...successfulFiles, ...status.tex.last_run.successfulFiles];
         }
     }
+    // instantiate status toast
+    useEffect(() => {
+        if (isFileStatusVisible) {
+            // dismiss existing toast if exists
+            if (toastID) {
+                toast.dismiss(toastID);
+                setToastID(null);
+            }
+        } else {
+            // instantiate new toast
+            const id = toast(<LocalFileStatus onStatusChange={newStatus => null} />, {
+                draggable: true,
+                position: toast.POSITION.BOTTOM_RIGHT,
+                autoClose: false
+            });
+            setToastID(id);
+        }
+    }, [isFileStatusVisible]);
     return (
         <>
             <Jumbotron>
@@ -40,18 +62,22 @@ const Local = props => {
                             </ToggleButton>
                         </ButtonGroup>
                     </div>
-                    <LocalFileStatus
-                        onStatusChange={newStatus => {
-                            if (
-                                activeFile &&
-                                newStatus.pdf.last_run &&
-                                newStatus.pdf.last_run.successfulFiles.includes(activeFile.tex)
-                            ) {
-                                setForcePDFReload(forcePDFReload + 1);
-                            }
-                            setStatus(newStatus);
-                        }}
-                    />
+                    <VisibilitySensor onChange={visible => setIsFileStatusVisible(visible)}>
+                        <Card>
+                            <LocalFileStatus
+                                onStatusChange={newStatus => {
+                                    if (
+                                        activeFile &&
+                                        newStatus.pdf.last_run &&
+                                        newStatus.pdf.last_run.successfulFiles.includes(activeFile.tex)
+                                    ) {
+                                        setForcePDFReload(forcePDFReload + 1);
+                                    }
+                                    setStatus(newStatus);
+                                }}
+                            />
+                        </Card>
+                    </VisibilitySensor>
                 </Row>
             </Jumbotron>
 

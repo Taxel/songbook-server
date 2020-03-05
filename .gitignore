@@ -12,5 +12,6 @@ server/.env
 server/service-key.json
 server/scripts/out/
 server/scripts/old/
+server/puppeteer/
 **/__pycache__
 server/public/files/Are You Lonesome Tonight_.jpg

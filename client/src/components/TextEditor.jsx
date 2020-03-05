@@ -70,7 +70,7 @@ function replaceSelectedChords() {
 }
 
 // mode is chopro or tex, needed for syntax highlighting
-const TextEditor = ({ url, mode }) => {
+const TextEditor = ({ url, mode, text }) => {
     const [data, setData] = useState(null);
     const dataRef = useRef(data);
     dataRef.current = data;
@@ -90,9 +90,13 @@ const TextEditor = ({ url, mode }) => {
                 // maybe set an error state
             }
         };
-        setData(null);
-        load();
-    }, [url, forceReload]);
+        if (text) {
+            setData(sanitizeText(text));
+        } else if (url) {
+            setData(null);
+            load();
+        }
+    }, [url, forceReload, text]);
 
     let highlight = data => data;
     if (mode === "cho") {
@@ -107,18 +111,24 @@ const TextEditor = ({ url, mode }) => {
         if (forSave) {
             conf = {
                 allowedTags: [],
-                allowedAttributes: []
+                allowedAttributes: [],
+                parser: {
+                    decodeEntities: false
+                }
             };
         } else {
             conf = {
                 allowedTags: ["b", "i", "em", "strong", "h3", "span", "div"],
-                allowedAttributes: { span: ["class"] }
+                allowedAttributes: { span: ["class"] },
+                parser: {
+                    decodeEntities: false
+                }
             };
         }
 
         let san = sanitizeHtml(data, conf);
         if (forSave) {
-            return san;
+            return san.replace(/&amp;/g, "&");
         }
         return highlight(san);
     };

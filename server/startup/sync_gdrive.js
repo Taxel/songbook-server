@@ -12,7 +12,6 @@ verbose();
 const readline = require("readline");
 const { google } = require("googleapis");
 const path = require("path");
-require("dotenv").config();
 const hashcodes = require("./hashcodes");
 
 let drive = null;

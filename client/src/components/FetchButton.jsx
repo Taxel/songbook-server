@@ -14,7 +14,7 @@ const FetchButton = props => {
         postBody = null
     } = props;
     const onClick = async () => {
-        const toastId = toast(processingStr + "...", { autoClose: 8000, type: "info" });
+        const toastId = toast(processingStr + "...", { autoClose: false, type: "info" });
         try {
             let options =
                 postBody === null

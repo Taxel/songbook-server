@@ -19,17 +19,23 @@ const readChoDir = () => fs.readdir(cho_dir, (err, files) => (cho_file_list = fi
 const readTexDir = () => fs.readdir(tex_dir, (err, files) => (tex_file_list = files));
 const readPdfDir = () => fs.readdir(pdf_dir, (err, files) => (pdf_file_list = files));
 
+let processes = {
+    pdf: null,
+    tex: null
+};
 let pdf_status = {
     in_progress: false,
     queued: false,
     last_run: false,
+    start_date: null,
     script: "update-pdfs"
 };
-
+let tex_process = null;
 let tex_status = {
     in_progress: false,
     queued: false,
     last_run: false,
+    start_date: null,
     script: "update-tex"
 };
 
@@ -40,6 +46,19 @@ const getStatusObj = s => {
         return tex_status;
     }
 };
+
+// kill running tasks
+process.on("exit", () => {
+    const { pdf, tex } = processes;
+    if (pdf) {
+        console.warn("PDF process still running. Let's kill it.");
+        pdf.kill();
+    }
+    if (tex) {
+        console.warn("TEX process still running. Let's kill it.");
+        tex.kill();
+    }
+});
 
 // update function that is called on the corresponding status object
 const update = status_str => {
@@ -52,21 +71,27 @@ const update = status_str => {
     console.log(`Updating ${status_str} files...`);
     // run update-pdfs script
     console.log("executing script: ", `py -3 ./${status_obj.script}.py --batch`);
-    exec(`py -3 ./${status_obj.script}.py --batch`, { cwd: scripts_dir }, (error, stdout, stderr) => {
-        if (error) {
-            console.error(error);
-        }
-        const status_obj = getStatusObj(status_str);
-        status_obj.last_run = JSON.parse(stdout);
-        if (!status_obj.queued) {
-            // nothing queued
-            status_obj.in_progress = false;
-        } else {
-            update(status_str);
-            status_obj.queued = false;
-        }
-    });
+    status_obj.start_date = Date.now();
     status_obj.in_progress = true;
+    processes[status_str] = exec(
+        `py -3 ./${status_obj.script}.py --batch`,
+        { cwd: scripts_dir },
+        (error, stdout, stderr) => {
+            if (error) {
+                console.error(error);
+            }
+            const status_obj = getStatusObj(status_str);
+            status_obj.last_run = JSON.parse(stdout);
+            if (!status_obj.queued) {
+                // nothing queued
+                status_obj.in_progress = false;
+                processes[status_str] = null;
+            } else {
+                update(status_str);
+                status_obj.queued = false;
+            }
+        }
+    );
 };
 
 // whenever the tex files change, rerun the update-pdfs script

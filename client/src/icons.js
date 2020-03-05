@@ -13,7 +13,8 @@ import {
     faSave,
     faPlus,
     faTrash,
-    faUndoAlt
+    faUndoAlt,
+    faPlay
 } from "@fortawesome/free-solid-svg-icons";
 
 library.add(faGithub);
@@ -29,5 +30,6 @@ library.add(
     faSave,
     faPlus,
     faTrash,
-    faUndoAlt
+    faUndoAlt,
+    faPlay
 );

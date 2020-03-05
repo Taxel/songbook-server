@@ -37,13 +37,18 @@ function parseHashcodesFile() {
     });
 }
 
-hashcodeObjFromFilePath(testfilePath);
+//hashcodeObjFromFilePath(testfilePath);
 
 async function hashcodeObjFromFilePath(filepath) {
     const buf = await readFileAsync(filepath);
-    const h = murmurHash(buf);
+    const maxInt = Number("21474836477");
+    //const h =       Number("4275668817")
+    const h = murmurHash(buf, 0xc58f1a7b);
+    console.log(h.toString(2));
+    const fromHashFile = Number("-1274144557");
+    //console.log(fromHashFile.toString(2));
     console.log(h);
-    console.log("hash from hashcodes file: -1274144557");
+    console.log("hash from hashcodes file: ");
 }
 
 module.exports.parseHashcodesFile = parseHashcodesFile;

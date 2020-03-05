@@ -4,6 +4,7 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var autobuild = require("./startup/localFileWatch");
+require("dotenv").config();
 
 var indexRouter = require("./routes/index");
 var gdriveRouter = require("./routes/gdrive");

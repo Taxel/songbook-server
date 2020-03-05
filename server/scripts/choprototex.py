@@ -99,13 +99,17 @@ def replace_tab(match, artist, songname):
     return "\\begin{tablature}\n\includegraphics[width=1.0\\linewidth ]{tabs/" + filename + "}\n\\end{tablature}\n"
 
 def convert(s):
-    rpl = [('{boc}', '\\begin{chorus}'), ('{eoc}', '\\end{chorus}'), ('{begin_of_verse}', '\\begin{verse}'), ('{end_of_verse}', '\\end{verse}')]
+    rpl = [('{chorus}', '\\refChorus'), ('{boc}', '\\begin{chorus}'), ('{eoc}', '\\end{chorus}'), ('{begin_of_verse}', '\\begin{verse}'), ('{end_of_verse}', '\\end{verse}'), ('{c: refChorus}', '\\refChorus'), ('{c:refChorus}', '\\refChorus')]
     for r in rpl:
         s = s.replace(r[0], r[1])
     
+    # replace {c:[/intro]} with \end{intro}
     s = re.sub("{c:\[/(.*?)\]}", lambda match: "\\end{" + songPartSub(match) + "}", s)  
+    # replace {c:[intro]} with \begin{intro}
     s = re.sub("{c:\[(.*?)\]}", lambda match: "\\begin{" + songPartSub(match) + "}", s)  
-
+    # replace all other {c: } comments with annotations
+    s = re.sub("\{c:(.+)\}", lambda match: "\\annotation{" + match.group(1) + "}", s)
+    # replace # comments with % comments
     s = re.sub("^#(.*)\n", "%\g<1>\n", s) 
 
     songname = re.search("{[t|title]: (.*)}", s).group(1)
@@ -132,13 +136,13 @@ def convert(s):
     custom_nobreak = re.compile(r"\/\/[ ]*\n")
     song = re.sub(custom_nobreak, "~ ", song)
     pre = """\\begin{song}{%
-    title={""" + songname + """}, %Songtitel
-	artist={""" + artist + """}, %Interpret
+    title={""" + songname + """}, % Songtitle
+	artist={""" + artist + """}, % Artist
 	 %Album
-	year={}, %Jahr
-	capo={""" + capo + """}, %falls das Lied original mit capo gespielt wird, hier eintragen. In arabischen Zahlen, obwohl es im Songbook zu römischer wird (capo{3} wird zu Capo III)
-	tags={kinderfreundlich} % falls dieses Lied nicht für Kinderaugen (und -ohren) geeignet ist, bitte das Wort löschen, sodass tags={} da steht
-    }%\n%\n% Diese Datei basiert auf einer ChordPro Datei, Aenderungen hier koennten ueberschrieben werden.\n% Die chopro Datei zu bearbeiten ist aber eh einfacher. Sie liegt im Verzeichnis /chopro/convertible\n%\n"""
+	year={}, %Year
+	capo={""" + capo + """}, % arabic number which fret the capo has to be in. Will be converted to roman numerals
+	tags={} % we don't use tags any more
+    }%\n%\n% This file was created from a chopro file, manual changes here might be overwritten.\n% Just edit the chopro file.\n%\n"""
     after = "\\end{song}"
     song = pre + song + '\n' + after
     return song
