@@ -18,7 +18,7 @@ def songPartSub(match):
         return "outro"
     if g == "intro" or g == "start" or g == "opening":
         return "intro"
-    if g == "solo" or g == "guitar solo":
+    if g == "solo" or g == "guitar solo" or g == "fill":
         return "solo"
     if g == "out-chorus" or g == "chorus":
         return "chorus"
@@ -28,7 +28,7 @@ def songPartSub(match):
     else:
         print("Error: Unrecognized song part: " + g)
     
-    return g
+    return "interlude"
 
 # matches a chopro chord
 ch = re.compile("\[(\S*?)\]")
@@ -76,7 +76,7 @@ tab_match_number = 0
 def replace_tab(match, artist, songname):
     global tab_match_number
 
-    def filename_compat(s):
+    def filename_compat(s): 
         
         s = s.replace('.', '')
         strs = s.split(' ')
@@ -85,7 +85,7 @@ def replace_tab(match, artist, songname):
         return '-'.join(strs)
 
     filename = ""
-    fn = tabToLilypond.pngFromAsciiTab(match.group(1))
+    fn = tabToLilypond.pngFromAsciiTab(match.group(2))
     if fn is not None:    
         filename = filename_compat(artist) + '-' + filename_compat(songname) + str(tab_match_number).zfill(2) +  '.png'
         outFile = os.path.join(tabFolderPath, filename)
@@ -96,7 +96,10 @@ def replace_tab(match, artist, songname):
     else:
         return "\n"
     tab_match_number += 1
-    return "\\begin{tablature}\n\includegraphics[width=1.0\\linewidth ]{tabs/" + filename + "}\n\\end{tablature}\n"
+    width = "1.0"
+    if match.group(1) is not None:
+        width = match.group(1) 
+    return "\\begin{tablature}\n\includegraphics[width="+ width + "\\linewidth ]{tabs/" + filename + "}\n\\end{tablature}\n"
 
 def convert(s):
     rpl = [('{chorus}', '\\refChorus'), ('{boc}', '\\begin{chorus}'), ('{eoc}', '\\end{chorus}'), ('{begin_of_verse}', '\\begin{verse}'), ('{end_of_verse}', '\\end{verse}'), ('{c: refChorus}', '\\refChorus'), ('{c:refChorus}', '\\refChorus')]
@@ -118,7 +121,9 @@ def convert(s):
     bpm = re.search("{bpm: ([0-9]*)}", s).group(1)
     global tab_match_number
     tab_match_number = 0
-    s = re.sub("{bot}.*?\n+(.*?)\n{eot}", lambda match: replace_tab(match, artist, songname), s,flags=re.S)
+    # {bot}.*?\n+(.*?)\n{eot}
+    # {bot}(?:\[width=([0-9\.]+)\])?.*?\n+(.*?)\n{eot}
+    s = re.sub("{bot}(?:\[width=([0-9\.]+)\])?.*?\n+(.*?)\n{eot}", lambda match: replace_tab(match, artist, songname), s,flags=re.S)
     
     lines = s.split('\r\n')
     if len(lines) <= 1:

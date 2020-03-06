@@ -27,14 +27,17 @@ router.get("/ugchopro", async function(req, res, next) {
     // split url along - and take last element. This is the id
     const urlParts = url.split("-");
     let id = urlParts[urlParts.length - 1];
+
     let text, tmp;
     try {
         tmp = await ugConverter.getUGChords(id);
         text = ugConverter.ugChordsToChopro(tmp);
+        res.send({ artist: tmp.artist, title: tmp.song, text });
     } catch (err) {
+        console.error(err);
         res.status(500).send(JSON.stringify(err));
     }
-    res.send({ artist: tmp.artist, title: tmp.song, text });
+    res.status(500).send();
 });
 
 router.get("/log");

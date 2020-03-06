@@ -21,7 +21,15 @@ def compile(filename, ext):
             print(e)
             print(traceback.format_exc())
             return 0
-    with open(path.join(texFolderPath, "{}.tex".format(filename)), 'w', encoding="utf-8") as outFile:
+    outFilePath = path.join(texFolderPath, "{}.tex".format(filename))
+    if path.isfile(outFilePath):
+        with open(outFilePath, 'r', encoding="utf-8") as outFile:
+            existingStr = outFile.read()
+            if existingStr == converted:
+                print("converted equals outFile for " + filename)
+                # TODO: check if tabs changed
+                return 2
+    with open(outFilePath, 'w', encoding="utf-8") as outFile:
         outFile.write(converted)
     utils.print_green(filename, "converted")
     return 1
