@@ -6,7 +6,7 @@ RUN apt-get install -y python3-pip
 RUN pip3 install colorama
 # copy only package.json files before npm install -> image can be cached as long as no packages were changed
 # install server npm dependencies
-WORKDIR /usr/app/server
+WORKDIR /usr/app
 COPY ./package.json .
 RUN npm install
 # copy source code
