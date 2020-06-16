@@ -36,7 +36,7 @@ def printErrorLog(filename):
 def compile(filename):    
     arguments = ["lualatex", "--jobname={0}".format(filename), "--output-dir=out", "--interaction=nonstopmode", "--halt-on-error", "\\def\\filename{{{0}}} \\input{{./latex_template/root_singleSong.tex}}".format(filename)]
     FNULL = open(os.devnull, 'w')
-    errFile = open('./out/compile.log', 'w')
+    errFile = open('./out/compile.log', 'w+')
     code = subprocess.call(arguments, shell=True, stdout=FNULL, stderr=errFile)
     if code is 0:
         # compilation successful

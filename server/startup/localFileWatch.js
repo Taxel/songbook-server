@@ -15,109 +15,115 @@ let tex_file_list = [];
 let pdf_file_list = [];
 
 // update file lists initially
-const readChoDir = () => fs.readdir(cho_dir, (err, files) => (cho_file_list = files));
-const readTexDir = () => fs.readdir(tex_dir, (err, files) => (tex_file_list = files));
-const readPdfDir = () => fs.readdir(pdf_dir, (err, files) => (pdf_file_list = files));
+const readChoDir = () =>
+  fs.readdir(cho_dir, (err, files) => (cho_file_list = files));
+const readTexDir = () =>
+  fs.readdir(tex_dir, (err, files) => (tex_file_list = files));
+const readPdfDir = () =>
+  fs.readdir(pdf_dir, (err, files) => (pdf_file_list = files));
 
 let processes = {
-    pdf: null,
-    tex: null
+  pdf: null,
+  tex: null,
 };
 let pdf_status = {
-    in_progress: false,
-    queued: false,
-    last_run: false,
-    start_date: null,
-    script: "update-pdfs"
+  in_progress: false,
+  queued: false,
+  last_run: false,
+  start_date: null,
+  script: "update-pdfs",
 };
 let tex_process = null;
 let tex_status = {
-    in_progress: false,
-    queued: false,
-    last_run: false,
-    start_date: null,
-    script: "update-tex"
+  in_progress: false,
+  queued: false,
+  last_run: false,
+  start_date: null,
+  script: "update-tex",
 };
 
-const getStatusObj = s => {
-    if (s === "pdf") {
-        return pdf_status;
-    } else {
-        return tex_status;
-    }
+const getStatusObj = (s) => {
+  if (s === "pdf") {
+    return pdf_status;
+  } else {
+    return tex_status;
+  }
 };
 
 // kill running tasks
 process.on("exit", () => {
-    const { pdf, tex } = processes;
-    if (pdf) {
-        console.warn("PDF process still running. Let's kill it.");
-        pdf.kill();
-    }
-    if (tex) {
-        console.warn("TEX process still running. Let's kill it.");
-        tex.kill();
-    }
+  const { pdf, tex } = processes;
+  if (pdf) {
+    console.warn("PDF process still running. Let's kill it.");
+    pdf.kill();
+  }
+  if (tex) {
+    console.warn("TEX process still running. Let's kill it.");
+    tex.kill();
+  }
 });
 
 // update function that is called on the corresponding status object
-const update = status_str => {
-    const status_obj = getStatusObj(status_str);
-    if (status_obj.in_progress) {
-        // script is running. queue it to run again
-        status_obj.queued = true;
-        return;
+const update = (status_str) => {
+  const status_obj = getStatusObj(status_str);
+  if (status_obj.in_progress) {
+    // script is running. queue it to run again
+    status_obj.queued = true;
+    return;
+  }
+  console.log(`Updating ${status_str} files...`);
+  // run update-pdfs script
+  console.log(
+    "executing script: ",
+    `python3 ./${status_obj.script}.py --batch`
+  );
+  status_obj.start_date = Date.now();
+  status_obj.in_progress = true;
+  processes[status_str] = exec(
+    `python3 ./${status_obj.script}.py --batch`,
+    { cwd: scripts_dir },
+    (error, stdout, stderr) => {
+      if (error) {
+        console.error(error);
+      }
+      const status_obj = getStatusObj(status_str);
+      status_obj.last_run = JSON.parse(stdout);
+      if (!status_obj.queued) {
+        // nothing queued
+        status_obj.in_progress = false;
+        processes[status_str] = null;
+      } else {
+        update(status_str);
+        status_obj.queued = false;
+      }
     }
-    console.log(`Updating ${status_str} files...`);
-    // run update-pdfs script
-    console.log("executing script: ", `py -3 ./${status_obj.script}.py --batch`);
-    status_obj.start_date = Date.now();
-    status_obj.in_progress = true;
-    processes[status_str] = exec(
-        `py -3 ./${status_obj.script}.py --batch`,
-        { cwd: scripts_dir },
-        (error, stdout, stderr) => {
-            if (error) {
-                console.error(error);
-            }
-            const status_obj = getStatusObj(status_str);
-            status_obj.last_run = JSON.parse(stdout);
-            if (!status_obj.queued) {
-                // nothing queued
-                status_obj.in_progress = false;
-                processes[status_str] = null;
-            } else {
-                update(status_str);
-                status_obj.queued = false;
-            }
-        }
-    );
+  );
 };
 
 // whenever the tex files change, rerun the update-pdfs script
 chokidar.watch(tex_dir, { ignoreInitial: true }).on("all", (event, path) => {
-    if (event === "change" || event === "add") {
-        update("pdf");
-    } else if (event === "remove") {
-        console.error("file removed from /tex/ dir");
-        console.error("This is not implemented!");
-    }
-    readTexDir();
+  if (event === "change" || event === "add") {
+    update("pdf");
+  } else if (event === "remove") {
+    console.error("file removed from /tex/ dir");
+    console.error("This is not implemented!");
+  }
+  readTexDir();
 });
 
 // whenever the tex files change, rerun the update-tex script
 chokidar.watch(cho_dir, { ignoreInitial: true }).on("all", (event, path) => {
-    if (event === "change" || event === "add") {
-        update("tex");
-    } else if (event === "remove") {
-        console.error("file removed from /tex/ dir");
-        console.error("This is not implemented!");
-    }
-    readChoDir();
+  if (event === "change" || event === "add") {
+    update("tex");
+  } else if (event === "remove") {
+    console.error("file removed from /tex/ dir");
+    console.error("This is not implemented!");
+  }
+  readChoDir();
 });
 
 chokidar.watch(pdf_dir, { ignoreInitial: true }).on("all", (event, path) => {
-    readPdfDir();
+  readPdfDir();
 });
 
 // init vars
@@ -130,8 +136,8 @@ update("tex");
 console.log("Started directory watcher");
 
 module.exports = {
-    getChoFiles: () => cho_file_list,
-    getTexFiles: () => tex_file_list,
-    getPdfFiles: () => pdf_file_list,
-    getStatus: () => ({ pdf: pdf_status, tex: tex_status })
+  getChoFiles: () => cho_file_list,
+  getTexFiles: () => tex_file_list,
+  getPdfFiles: () => pdf_file_list,
+  getStatus: () => ({ pdf: pdf_status, tex: tex_status }),
 };
