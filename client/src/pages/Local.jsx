@@ -99,7 +99,7 @@ const Local = props => {
                     >
                         <LocalFileBrowser
                             onSelect={selected => setActiveFile(selected)}
-                            activeFileName={activeFile ? activeFile.filename : null}
+                            activeFileID={activeFile ? activeFile._id : null}
                             failedFiles={failedFiles}
                             successfulFiles={successfulFiles}
                         />

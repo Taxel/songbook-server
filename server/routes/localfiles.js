@@ -3,15 +3,12 @@ var router = express.Router();
 
 let localFileWatch = require("../startup/localFileWatch");
 let ugConverter = require("../startup/ugConverter");
+let mongo = require("../db/init");
 const fs = require("fs");
 
 /* GET home page. */
-router.get("/list", function(req, res, next) {
-    let json = {
-        cho: localFileWatch.getChoFiles(),
-        tex: localFileWatch.getTexFiles(),
-        pdf: localFileWatch.getPdfFiles()
-    };
+router.get("/list", async function(req, res, next) {
+    json = await mongo.getSongs();
     res.send(json);
 });
 

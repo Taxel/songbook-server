@@ -13,11 +13,13 @@ const readline = require("readline");
 const { google } = require("googleapis");
 const path = require("path");
 const hashcodes = require("./hashcodes");
+const mongo = require("../db/init");
 
 let drive = null;
 let database = null;
 let db_next_id = -1;
 let error = null;
+const pdfjsLib = require("pdfjs-dist");
 
 async function init() {
     status = STATUS.LOADING;
@@ -33,6 +35,15 @@ async function init() {
         hashcodes.parseHashcodesFile();
         db_next_id = await getNextId();
         console.log("ready");
+        //await cleanUploadFolder();
+        //await uploadNewFile("3_doors_down-here_without_you.pdf", "/pdf/");
+        const songs = await mongo.getSongs();
+        for (let s of songs) {
+            const { _id } = s;
+            await uploadSong(_id);
+        }
+        await hashcodes.save();
+        await uploadDB();
     } catch (e) {
         console.error("Error:");
         console.error(e);
@@ -104,12 +115,10 @@ function downloadFile(file, destinationFolder = "/") {
     });
 }
 
-function uploadFile(file, destinationFolder = "/") {
+function uploadFile(file, localFolder = "/") {
     return new Promise((resolve, reject) => {
         const { id, originalFilename, mimeType } = file;
-        const src = fs.createReadStream(
-            path.resolve(`${__dirname}/../public/files${destinationFolder}${originalFilename}`)
-        );
+        const src = fs.createReadStream(path.resolve(`${__dirname}/../public/files${localFolder}${originalFilename}`));
 
         drive.files.update(
             {
@@ -132,11 +141,250 @@ function uploadFile(file, destinationFolder = "/") {
     });
 }
 
+function uploadNewFile(filename, filepath) {
+    return new Promise((resolve, reject) => {
+        const p = path.resolve(`${__dirname}/../public/files${filepath}${filename}`);
+        const src = fs.createReadStream(p);
+        const stats = fs.statSync(p);
+        drive.files.create(
+            {
+                uploadType: "multipart",
+                resource: {
+                    name: filename,
+                    parents: [process.env.GDRIVE_UPLOAD_DIR],
+                    modifiedTime: stats.mtime
+                },
+                media: {
+                    body: src
+                }
+            },
+            async (err, res) => {
+                if (err) {
+                    console.error(err);
+                    reject(err);
+                    return;
+                }
+                console.log("uploaded file", filename);
+                await hashcodes.addToHashfile(filename, filepath);
+                await hashcodes.save();
+                resolve(res);
+            }
+        );
+    });
+}
+
+async function cleanUploadFolder() {
+    const files = await listFiles(process.env.GDRIVE_UPLOAD_DIR);
+    let proms = [];
+    for (let f of files) {
+        proms.push(deleteFile(f.id));
+    }
+    await Promise.all(proms);
+    console.log("cleared upload folder");
+}
+
+function deleteFile(fileId) {
+    return new Promise((resolve, reject) => {
+        drive.files.delete(
+            {
+                fileId
+            },
+            (err, res) => {
+                console.log("deleted file", fileId);
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(res);
+                }
+            }
+        );
+    });
+}
+
+async function uploadSong(_id) {
+    const { uploadDate, songId, pdfPath, artistName, songName } = await mongo.getSongInfo(_id);
+    if (!uploadDate) {
+        console.log("uploading song", songName);
+        // upload file to Drive
+        await uploadNewFile(pdfPath, "/pdf/");
+        // add file to hash file
+        const { lastModified, murmurHash, fileSize } = hashcodes.addToHashfile(pdfPath, "/pdf/");
+        // add new song to db
+        const newSongID = await getNextId();
+        const pages = await pdfPageNumber(path.resolve(`${__dirname}/../public/files/pdf/${pdfPath}`));
+        const now = new Date();
+        await dbRunQuery(
+            `INSERT INTO Songs
+         ("Id",
+         "Title",
+         "Difficulty",
+         "LastPage",
+         "OrientationLock",
+         "Duration",
+         "AutoStartAudio",
+         "CreationDate",
+         "LastModified",
+         "SongId") VALUES (NULL,?,0,0,0,0,0,?,?,?);`,
+            [songName, now, now, newSongID]
+        );
+        // add song to files
+        await dbRunQuery(
+            `INSERT INTO Files
+        ("SongId", "Path", "PageOrder", "FileSize", "LastModified", "Source", "Type") 
+        VALUES (?,?,?,?,?,1,1)`,
+            [newSongID, process.env.GDRIVE_UPLOAD_DIR + "/" + pdfPath, "1-" + pages, fileSize, lastModified]
+        );
+        console.log("added to files");
+        // add song to AutoScroll
+        await dbRunQuery(
+            `INSERT INTO AutoScroll ("SongId", "Behavior", "PauseDuration", "Speed", "FixedDuration", "ScrollPercent", "ScrollOnLoad") VALUES
+        (?, 0, 8000, 3, 1000, 20, 0)`,
+            [newSongID]
+        );
+        // add song to Crop
+        await dbRunQuery(
+            `INSERT INTO Crop ("SongId", "Page", "Left", "Top", "Right", "Bottom", "Rotation") VALUES
+        (?, 0, 0, 0, 0, 0, 0)`,
+            [newSongID]
+        );
+        // add song to MetronomeSettings
+        await dbRunQuery(
+            `INSERT INTO MetronomeSettings ("SongId", "Sig1", "Sig2", "Subdivision", "SoundFX", "AccentFirst", "AutoStart", "CountIn", "NumberCount", "AutoTurn") VALUES
+        (?, 2, 0, 0, 0, 0, 0, 0, 1, 0)`,
+            [newSongID]
+        );
+        // add to MetronomeBeatsPerPage
+        await dbRunQuery(
+            `INSERT INTO MetronomeBeatsPerPage ("SongId", "Page", "BeatsPerPage") VALUES
+        (?, 0, 0)`,
+            [newSongID]
+        );
+        // add to ZoomPerPage
+        await dbRunQuery(
+            `INSERT INTO ZoomPerPage ("SongId", "Page", "Zoom", "PortPanX", "PortPanY", "LandZoom", "LandPanX", "LandPanY", "FirstHalfY", "SecondHalfY") VALUES
+        (?, 0, 100.0, 0.0, 0.0, 100.0, 0.0, 0.0, 0, 0)`,
+            [newSongID]
+        );
+        // Create artist if does not exist
+        let artistId = await dbQuery("SELECT Id FROM Artists WHERE Name LIKE ?", [artistName]);
+        if (artistId.length === 0) {
+            // create artist
+            await dbRunQuery(
+                `INSERT INTO Artists ("Name", "SortBy", "Ascending", "DateCreated", "LastModified") VALUES (?, 1, 1, ?, ?)`,
+                [artistName, now, now]
+            );
+            artistId = await dbQuery("SELECT Id FROM Artists WHERE Name LIKE ?", [artistName]);
+            console.log("created new artist", artistName);
+        }
+        // add to artist
+        if (artistId.length > 0) {
+            const { Id } = artistId[0];
+            //add song to ArtistsSongs
+            await dbRunQuery(`INSERT INTO ArtistsSongs ("ArtistId", "SongId") VALUES (?, ?)`, [Id, newSongID]);
+            // update modified date for artist
+            await dbRunQuery(
+                `UPDATE Artists
+                    SET LastModified = ?
+                    WHERE Id = ?`,
+                [now, Id]
+            );
+        }
+
+        // Create build server collection if does not exist
+        let collId = await dbQuery("SELECT Id FROM Collections WHERE Name LIKE 'build-server'", []);
+        if (collId.length === 0) {
+            // create artist
+            await dbRunQuery(
+                `INSERT INTO Collections ("Name", "SortBy", "Ascending", "DateCreated", "LastModified") VALUES ("build-server", 1, 1, ?, ?)`,
+                [now, now]
+            );
+            collId = await dbQuery("SELECT Id FROM Artists WHERE Name LIKE ?", [artistName]);
+            console.log("created new artist", artistName);
+        }
+        // add to collection
+        if (collId.length > 0) {
+            const { Id } = collId[0];
+            //add song to ArtistsSongs
+            await dbRunQuery(`INSERT INTO CollectionSong ("CollectionId", "SongId") VALUES (?, ?)`, [Id, newSongID]);
+            // update modified date for collection
+            await dbRunQuery(
+                `UPDATE Collections
+                    SET LastModified = ?
+                    WHERE Id = ?`,
+                [now, Id]
+            );
+        }
+        //in theory this should be everything
+        //hashcodes.save();
+        mongo.setDataForSong(_id, now, newSongID);
+        console.log("added song ", songName);
+    } else {
+        const didChange = hashcodes.didFileChangeOnDisk(pdfPath, "/pdf/");
+        if (didChange) {
+            // the file changed so we need to reupload it
+            const gdriveFile = await gdriveFileFromName(pdfPath, process.env.GDRIVE_UPLOAD_DIR);
+            const fullPdfPath = path.resolve(`${__dirname}/../public/files/pdf/${pdfPath}`);
+            const pages = await pdfPageNumber(fullPdfPath);
+            const pageOrder = "1-" + pages;
+            console.log("uploading changed song", songName);
+            // upload file to Drive
+            await uploadFile(gdriveFile, "/pdf/");
+            // add file to hash file
+            const { lastModified, murmurHash, fileSize } = hashcodes.addToHashfile(pdfPath, "/pdf/");
+            // add new song to db
+            const now = new Date();
+            // update song -> last updated
+            await dbRunQuery(`UPDATE Songs SET LastModified=? WHERE Id=?`, [lastModified, songId]);
+            // update all dbs with this new id
+            //changeSongID(songId, newSongID);
+            // update files, especially pageOrder
+            const file = await dbQuery(
+                `SELECT Id
+            FROM Files
+            ORDER BY Id DESC
+            LIMIT 1`,
+                []
+            );
+            const newFileId = file[0].Id + 1;
+            await dbRunQuery(`UPDATE Files SET Id=?, LastModified=?, PageOrder=? WHERE SongId=?`, [
+                newFileId,
+                lastModified,
+                pageOrder,
+                songId
+            ]);
+
+            mongo.setDataForSong(_id, lastModified, songId);
+            console.log("updated song ", songName);
+        }
+        //check if file has changed on disk
+    }
+}
+
+async function pdfPageNumber(fullFilePath) {
+    const doc = await pdfjsLib.getDocument(fullFilePath).promise;
+    return doc.numPages;
+}
+
 function openDatabase() {
     return new Promise((resolve, reject) => {
         const db = new Database(path.resolve(`${__dirname}/../public/files/mobilesheets.db`), OPEN_READWRITE)
             .on("error", reject)
             .on("open", () => resolve(db));
+    });
+}
+
+function gdriveFileFromName(filename, folder) {
+    return new Promise((resolve, reject) => {
+        drive.files.list(
+            {
+                fields: `files(id,name,mimeType,modifiedTime,createdTime,originalFilename,fullFileExtension,md5Checksum,size)`,
+                q: `'${folder}' in parents and mimeType != 'application/vnd.google-apps.folder' and name = '${filename}'`
+            },
+            (err, res) => {
+                if (err) reject("The API returned an error: " + err);
+                resolve(res.data.files[0]);
+            }
+        );
     });
 }
 
@@ -233,6 +481,8 @@ async function deleteSongID(oldID) {
     await Promise.all(promises);
     console.log("deleted song id", oldID);
 }
+
+async function createSong(gdrive_path) {}
 
 async function changeSongID(oldID, newID) {
     const tables = [

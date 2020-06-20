@@ -3,6 +3,11 @@
 
 
 \newcommand*{\rom}[1]{\MakeUppercase{\romannumeral #1}}
+\newcommand{\pages}{
+	\ifnum \getpagerefnumber{LastPage} > 1
+		\musejazz (\pageref{LastPage} pages)
+	\fi
+}
 %\setlength{\textheight}{800pt}
 
 \definesongtitletemplate{custom}{
@@ -14,7 +19,7 @@
 	\begingroup
 	% if album or year provided: always add table below
 	\ifanysongproperty{album, year}{
-		\begin{tabularx}{\textwidth}{l X r}
+		\begin{tabularx}{\textwidth}{l X r r}
 			\musejazz
 			\ifsongproperty{album}{Album: \songproperty{album}}{} & 
 			\ifsongproperty{capo}{
@@ -22,7 +27,7 @@
 				\ifnum \songproperty{capo} > 0
 				\musejazz Capo: \rom{\songproperty{capo}}
 				\fi
-			}{} & \ifsongproperty{year}{\musejazz\songproperty{year}}{} \\
+			}{} & \ifsongproperty{year}{\musejazz\songproperty{year}}{} & \pages \\
 			
 		\end{tabularx}
 	}{
@@ -30,12 +35,26 @@
 		\ifsongproperty{capo}{
 		\ifnum \songproperty{capo} > 0
 			\begin{tabularx}{\textwidth}{l X r}
-				& \musejazz Capo: \rom{\songproperty{capo}}	 & \\
+				& \musejazz Capo: \rom{\songproperty{capo}}	 & \pages \\
 				
 			\end{tabularx}
+		\else
+		\ifnum \getpagerefnumber{LastPage} > 1
+		\begin{tabularx}{\textwidth}{l X r}
+			& & \pages \\
+			
+		\end{tabularx}
+	\fi
+		
 		\fi
 		}{
-			%else don't show table
+			%else only show page numbering
+			\ifnum \getpagerefnumber{LastPage} > 1
+		\begin{tabularx}{\textwidth}{l X r}
+			& & \pages \\
+			
+		\end{tabularx}
+	\fi
 		}
 	}
 	\endgroup

@@ -127,6 +127,9 @@ const TextEditor = ({ url, mode, text }) => {
         }
 
         let san = sanitizeHtml(data, conf);
+        // {eov} = {end_of_verse}, {bov} analogous...
+        san = san.replace(/\{eov\}/g, "{end_of_verse}");
+        san = san.replace(/\{bov\}/g, "{begin_of_verse}");
         if (forSave) {
             return san.replace(/&amp;/g, "&");
         }

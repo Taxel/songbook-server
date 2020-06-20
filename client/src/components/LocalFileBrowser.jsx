@@ -2,47 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Card, ListGroup, Spinner, Badge, Button, Form, Col } from "react-bootstrap";
 import { FontAwesomeIcon as FAI } from "@fortawesome/react-fontawesome";
 
-const name_formatted = unformatted => {
-    let [artist, title] = unformatted.split("-");
-    artist = artist.split("_").join(" ");
-    title = title.split("_").join(" ");
-    return (
-        <>
-            <b>{artist}</b> {title}
-        </>
-    );
-};
-
-// transforms an object of {cho, tex, pdf} to an array with objects of that key
-// expects each pdf to have corresponding tex and some tex to have corresponding cho
-const transform = rawData => {
-    const transformed = [];
-    const { cho, tex, pdf } = rawData;
-    let choIdx = 0;
-    for (let i in pdf) {
-        let ret = { pdf: pdf[i], tex: tex[i] };
-        ret.filename = ret.pdf.slice(0, -4).toLowerCase();
-        ret.formatted = name_formatted(ret.filename);
-        // get filename without extension
-        if (cho.length - 1 > choIdx && cho[choIdx].toLowerCase().startsWith(ret.filename)) {
-            ret["cho"] = cho[choIdx];
-            choIdx++;
-        }
-        transformed.push(ret);
-    }
-    if (choIdx !== cho.length - 1) {
-        console.error("did not match all chopro files! no partner found for", cho[choIdx]);
-    }
-    return transformed;
-};
-
-const searchFilter = (filename, searchStr) => {
-    return filename.toLowerCase().includes(searchStr);
+const searchFilter = ({ artistName, songName }, searchStr) => {
+    return artistName.toLowerCase().includes(searchStr) || songName.toLowerCase().includes(searchStr);
 };
 
 const LocalFileItem = ({
-    formatted,
-    cho = null,
+    artistName,
+    songName,
+    choPath = null,
     failed = false,
     success = false,
     isActive = false,
@@ -55,20 +22,17 @@ const LocalFileItem = ({
         onClick={setActive}
         variant={failed ? "danger" : success ? "success" : "light"}
     >
-        {formatted} {cho ? <Badge variant="primary">chopro</Badge> : <Badge variant="secondary">tex</Badge>}
+        <b>{artistName}</b> - {songName}{" "}
+        {choPath ? <Badge variant="primary">chopro</Badge> : <Badge variant="secondary">tex</Badge>}
     </ListGroup.Item>
 );
 
 const LocalFileBrowser = props => {
-    const { onSelect, activeFileName, failedFiles = [], successfulFiles = [] } = props;
+    const { onSelect, activeFileID, failedFiles = [], successfulFiles = [] } = props;
     const [data, setData] = useState([]);
     const [forceReloadCtr, setForceReloadCtr] = useState(0);
     const [searchStr, setSearchStr] = useState("");
     const [dataStatus, setDataStatus] = useState([]);
-    const searchStrTransformed = searchStr
-        .split(" ")
-        .join("_")
-        .toLowerCase();
 
     useEffect(() => {
         // load files from server
@@ -76,7 +40,7 @@ const LocalFileBrowser = props => {
             const r = await fetch("/local/list");
             const d = await r.json();
             console.log(d);
-            setData(transform(d));
+            setData(d);
         };
         loadFiles();
     }, [forceReloadCtr]);
@@ -117,13 +81,13 @@ const LocalFileBrowser = props => {
                     <ListGroup as="ul" variant="flush" style={{ margin: 0 }}>
                         {data.length > 0 ? (
                             data
-                                .filter(f => searchFilter(f.filename, searchStrTransformed))
+                                .filter(f => searchFilter(f, searchStr.toLowerCase()))
                                 .map((f, i) => (
                                     <LocalFileItem
-                                        key={f.filename}
+                                        key={f._id}
                                         {...f}
                                         {...(dataStatus.length > i ? dataStatus[i] : {})}
-                                        isActive={f.filename === activeFileName}
+                                        isActive={f._id === activeFileID}
                                         setActive={() => onSelect(f)}
                                     />
                                 ))

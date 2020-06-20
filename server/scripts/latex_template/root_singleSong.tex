@@ -9,6 +9,8 @@
 \usepackage[noautomatic]{imakeidx} %allows for multiple indices
 \usepackage[ngerman]{babel}
 \usepackage{lmodern}
+\usepackage{refcount}
+
 
 \usepackage{graphicx}
 \graphicspath{{../public/files/}} %Where the figures folder is located
@@ -21,29 +23,29 @@
  
 %\errorcontextlines 10000
 \input{latex_template/commands.tex}
-\input{latex_template/songtitleTemplateSingleSong.tex} 
+\input{latex_template/songtitleTemplateSingleSong.tex}
 
 \setleadsheets{smash-chords=true}
 \setleadsheets{align-chords=c}
-\renewcommand{\ttdefault}{pcr}
-\renewcommand\familydefault{\sfdefault}
+\renewcommand{\ttdefault}{pcr} 
+\renewcommand\familydefault{\sfdefault} 
 %\usepackage{enumitem}
 %\setlist{leftmargin=9.0mm}
 %\linespread{0.4}
-
+  
 \input{latex_template/musejazzCommands.tex}
 
 \usepackage{fancyhdr}
-
+ 
 \pagestyle{plain}
 \fancypagestyle{plain}{%
 \fancyhf{} % clear all header and footer fields
 \fancyfoot[R]{\raisebox{20mm}{\textbf{\thepage}}} % except the center
-\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\headrulewidth}{0pt} 
 \renewcommand{\footrulewidth}{0pt}}
 
-\begin{document}
+\begin{document} 
 
 \input{../public/files/tex/\filename.tex}
-
+\label{LastPage}
 \end{document}

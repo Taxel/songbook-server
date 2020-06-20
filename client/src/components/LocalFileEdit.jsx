@@ -3,13 +3,13 @@ import { Button, Tabs, Tab, Container, Col, Row } from "react-bootstrap";
 import TextEditor from "./TextEditor";
 import TabletPDFViewer from "./TabletPDFViewer";
 
-const LocalFileEdit = ({ filename, pdf, tex, cho = null, wide = false, forceReload = 0 }) => {
-    const [tabKey, setTabKey] = useState(!cho ? "tex" : "chopro");
+const LocalFileEdit = ({ filename, pdfPath, texPath, choPath = null, wide = false, forceReload = 0 }) => {
+    const [tabKey, setTabKey] = useState(!choPath ? "tex" : "chopro");
 
     // reset state when file changes
     useEffect(() => {
-        setTabKey(!cho ? "tex" : "chopro");
-    }, [filename, cho]);
+        setTabKey(!choPath ? "tex" : "chopro");
+    }, [filename, choPath]);
 
     // two column layout - wide
     return (
@@ -24,7 +24,7 @@ const LocalFileEdit = ({ filename, pdf, tex, cho = null, wide = false, forceRelo
                         maxWidth: "62vh" /* make sure the pdf fits the screen*/
                     }}
                 >
-                    <TabletPDFViewer url={`/files/pdf/${pdf}?r=${forceReload}`} refreshButton />
+                    <TabletPDFViewer url={`/files/pdf/${pdfPath}?r=${forceReload}`} refreshButton />
                 </Col>
                 <Col
                     md={wide ? 6 : true}
@@ -35,13 +35,13 @@ const LocalFileEdit = ({ filename, pdf, tex, cho = null, wide = false, forceRelo
                         <Tab
                             eventKey="chopro"
                             title="Chopro"
-                            disabled={cho === null}
+                            disabled={choPath === null}
                             className="content overflow-hidden"
                         >
-                            <TextEditor url={`/files/chopro/${cho}`} mode="cho" />
+                            {choPath && <TextEditor url={`/files/chopro/${choPath}`} mode="cho" />}
                         </Tab>
                         <Tab eventKey="tex" title="Tex" className="content overflow-hidden">
-                            <TextEditor url={`/files/tex/${tex}`} mode="tex" />
+                            <TextEditor url={`/files/tex/${texPath}`} mode="tex" />
                         </Tab>
                     </Tabs>
                 </Col>

@@ -1,5 +1,9 @@
 \useleadsheetslibrary{musejazz} 
+\ifdefined\musejazz
+\setfontfamily \musejazz {MuseJazzText}
+\else
 \newfontfamily \musejazz {MuseJazzText}
+\fi
 \setleadsheets{
     title-template=custom,
     verses-label-format=\musejazz, 

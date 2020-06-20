@@ -9,6 +9,7 @@ require("dotenv").config();
 var indexRouter = require("./routes/index");
 var gdriveRouter = require("./routes/gdrive");
 var localRouter = require("./routes/localfiles");
+var mongo = require("./db/init");
 
 var app = express();
 
