@@ -20,6 +20,11 @@ let db_next_id = -1;
 let error = null;
 
 async function init() {
+    if (!process.env.SERVICE_KEY) {
+        status = STATUS.ERROR;
+        console.warn("GDRIVE Init failed: set env.SERVICE_KEY first!");
+        return;
+    }
     status = STATUS.LOADING;
     const service_key = require(path.resolve(`${__dirname}/../${process.env.SERVICE_KEY}`));
 

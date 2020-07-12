@@ -34,11 +34,11 @@ def printErrorLog(filename):
 # compiles a pdf from a single tex file
 # returns 1 if compilation succeeded, 0 otherwise
 def compile(filename):    
-    arguments = ["lualatex", "--jobname={0}".format(filename), "--output-dir=out", "--interaction=nonstopmode", "--halt-on-error", "\\def\\filename{{{0}}} \\input{{./latex_template/root_singleSong.tex}}".format(filename)]
+    arguments = ["lualatex", "--jobname={0}".format(filename), "--output-dir=out", "\"\\def\\filename{{{0}}} \\input{{./latex_template/root_singleSong.tex}}\"".format(filename)]
     FNULL = open(os.devnull, 'w')
     errFile = open('./out/compile.log', 'w+')
-    print(arguments)
-    code = subprocess.call(arguments, shell=True, stderr=errFile)
+    print(' '.join(arguments))
+    code = subprocess.call(' '.join(arguments), shell=True, stderr=errFile)
     if code is 0:
         # compilation successful
         copyfile("./out/{0}.pdf".format(filename), path.join(pdfFolderPath, filename + ".pdf"))
